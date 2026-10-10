@@ -41,4 +41,4 @@ async function runRAGTest() {
   }
 }
 
-runRAGTest();
+runRAGTest();node server/test-rag.js

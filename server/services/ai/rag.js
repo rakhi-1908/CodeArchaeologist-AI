@@ -7,10 +7,12 @@ export async function askRepository(indexedChunks, question) {
 
   return {
     answer,
-    citations: relevantChunks.map(({ path, startLine, endLine }) => ({
+    citations: relevantChunks.map(({ path, symbol, startLine, endLine, score }) => ({
       path,
+      symbol,
       startLine,
-      endLine
+      endLine,
+      score
     })),
     relatedFiles: [...new Set(relevantChunks.map(({ path }) => path))]
   };
