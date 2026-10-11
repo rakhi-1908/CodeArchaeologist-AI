@@ -1,12 +1,14 @@
-const fs = require('fs');
-const parser = require('@babel/parser');
-const traverse = require('@babel/traverse').default;
+import fs from 'fs';
+import { parse } from '@babel/parser';
+import _traverse from '@babel/traverse';
 
-function analyzeCodeFile(filePath) {
+const traverse = _traverse.default || _traverse;
+
+export function analyzeCodeFile(filePath) {
   try {
     const code = fs.readFileSync(filePath, 'utf-8');
 
-    const ast = parser.parse(code, {
+    const ast = parse(code, {
       sourceType: 'module',
       plugins: ['jsx', 'typescript']
     });
@@ -58,5 +60,3 @@ function analyzeCodeFile(filePath) {
     return { filePath, error: error.message };
   }
 }
-
-module.exports = { analyzeCodeFile };

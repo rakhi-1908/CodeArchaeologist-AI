@@ -1,7 +1,7 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const { analyzeCodeFile } = require('./parser');
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import { analyzeCodeFile } from './parser.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -14,7 +14,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'CodeArchaeologist Repo Intelligence API running' });
 });
 
-// Endpoint to parse a specific local file
+// Endpoint to parse a local file
 app.post('/api/parse-file', (req, res) => {
   const { filePath } = req.body;
   if (!filePath) {
