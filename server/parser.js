@@ -4,17 +4,15 @@ import _traverse from '@babel/traverse';
 
 const traverse = _traverse.default || _traverse;
 
-export function analyzeCodeFile(filePath) {
+export function analyzeCodeString(code, identifier = 'dynamic-code') {
   try {
-    const code = fs.readFileSync(filePath, 'utf-8');
-
     const ast = parse(code, {
       sourceType: 'module',
       plugins: ['jsx', 'typescript']
     });
 
     const structure = {
-      filePath,
+      identifier,
       imports: [],
       functions: [],
       classes: [],
@@ -56,6 +54,15 @@ export function analyzeCodeFile(filePath) {
     });
 
     return structure;
+  } catch (error) {
+    return { identifier, error: error.message };
+  }
+}
+
+export function analyzeCodeFile(filePath) {
+  try {
+    const code = fs.readFileSync(filePath, 'utf-8');
+    return analyzeCodeString(code, filePath);
   } catch (error) {
     return { filePath, error: error.message };
   }
