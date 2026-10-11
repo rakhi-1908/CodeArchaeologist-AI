@@ -3,6 +3,7 @@ import cors from 'cors';
 import path from 'path';
 import { analyzeCodeFile, analyzeCodeString } from './parser.js';
 import { parseRepoUrl, getRepoTree, getFileContent } from './githubService.js';
+import { buildDependencyGraph } from './dependencyTracer.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -14,7 +15,6 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'CodeArchaeologist Repo Intelligence API running' });
 });
 
-// Parse local file
 app.post('/api/parse-file', (req, res) => {
   const { filePath } = req.body;
   if (!filePath) {
@@ -26,7 +26,6 @@ app.post('/api/parse-file', (req, res) => {
   res.json(result);
 });
 
-// Fetch repository file tree from GitHub
 app.post('/api/github/tree', async (req, res) => {
   const { repoUrl, branch } = req.body;
   if (!repoUrl) {
@@ -42,7 +41,6 @@ app.post('/api/github/tree', async (req, res) => {
   }
 });
 
-// Fetch and parse remote file directly from GitHub
 app.post('/api/github/parse-remote', async (req, res) => {
   const { repoUrl, filePath, branch } = req.body;
   if (!repoUrl || !filePath) {
@@ -54,6 +52,20 @@ app.post('/api/github/parse-remote', async (req, res) => {
     const rawCode = await getFileContent(owner, repo, filePath, branch || 'main');
     const parsedData = analyzeCodeString(rawCode, `${owner}/${repo}/${filePath}`);
     res.json(parsedData);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/github/graph', async (req, res) => {
+  const { repoUrl, branch } = req.body;
+  if (!repoUrl) {
+    return res.status(400).json({ error: 'repoUrl is required' });
+  }
+
+  try {
+    const graph = await buildDependencyGraph(repoUrl, branch || 'main');
+    res.json(graph);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
